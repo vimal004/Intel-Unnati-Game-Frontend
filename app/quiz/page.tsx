@@ -78,7 +78,7 @@ export default function QuizPage() {
       .post("https://gemini-backend-uiuz.onrender.com/gemini", {
         prompt: `Generate 5 quiz questions on the topic of ${selectedTopic} at a ${difficulty} level unique and not overused/common. 
       Format the response as a valid JSON array:
-      [{"id":1, "question":"...", "options":["A","B","C","D"], "correctAnswer":"..."}] no triple quotes json and stuff just provide the json`,
+      [{"id":1, "question":"...", "options":["A","B","C","D"], "correctAnswer":"A"}] no triple quotes json and stuff just provide the json`,
       })
       .then((res) => {
         console.log("quiz started");
