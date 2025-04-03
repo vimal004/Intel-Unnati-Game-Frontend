@@ -29,6 +29,7 @@ export default function QuizPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [username, setUsername] = useState("user123"); // In a real app, this would come from auth
   const [difficulty, setDifficulty] = useState("Easy");
+  const [loading, setLoading] = useState(false);
 
   // Mock quiz questions based on selected topic
   const [quizQuestions, setquizQuestions] = useState([
@@ -71,6 +72,7 @@ export default function QuizPage() {
   const getquiz = () => {
     console.log("Fetching quiz content");
     console.log(selectedTopic);
+    setLoading(true); // Set loading to true when fetching quiz content
 
     axios
       .post("https://gemini-backend-uiuz.onrender.com/gemini", {
@@ -99,6 +101,7 @@ export default function QuizPage() {
           // Set the quiz questions state
           setquizQuestions(parsedData);
           setQuizStarted(true);
+          setLoading(false); // Set loading to false after fetching quiz content  
         } catch (error) {
           console.error("Error parsing response:", error);
         }
@@ -237,7 +240,7 @@ export default function QuizPage() {
                 disabled={!selectedTopic}
                 className="w-full"
               >
-                Start Quiz
+                {loading ? "Loading your quiz..." : "Start Quiz"}
               </Button>
             </CardFooter>
           </Card>
