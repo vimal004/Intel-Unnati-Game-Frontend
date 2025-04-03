@@ -71,17 +71,39 @@ export default function QuizPage() {
   const getquiz = () => {
     console.log("Fetching quiz content");
     console.log(selectedTopic);
+
     axios
       .post("http://localhost:3001/gemini", {
-        prompt: `give 5 quiz questions on the topic of ${selectedTopic} of level ${difficulty} and 4 options give in this format :
-      [{id,question,options,correctAnswer}]
-        `,
+        prompt: `Generate 5 quiz questions on the topic of ${selectedTopic} at a ${difficulty} level. 
+      Format the response as a valid JSON array:
+      [{"id":1, "question":"...", "options":["A","B","C","D"], "correctAnswer":"..."}] no triple quotes json and stuff just provide the json`,
       })
       .then((res) => {
         console.log("quiz started");
-        console.log(res.data.response);
-        //setquizQuestions(res.data.response);
-      });
+
+        try {
+          console.log("Raw Response:", res.data.response);
+
+          // Ensure `res.data.response` is a string
+          let jsonResponse = res.data.response;
+
+          // Remove all occurrences of backticks and "json" (to handle edge cases)
+          jsonResponse = jsonResponse
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .trim();
+
+          // Now parse the cleaned JSON string
+          const parsedData = JSON.parse(jsonResponse);
+
+          // Set the quiz questions state
+          setquizQuestions(parsedData);
+        } catch (error) {
+          console.error("Error parsing response:", error);
+        }
+      })
+
+      .catch((err) => console.error("Error fetching quiz:", err));
   };
 
   const startQuiz = () => {
