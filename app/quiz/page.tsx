@@ -108,7 +108,9 @@ export default function QuizPage() {
 
   const startQuiz = () => {
     getquiz();
-    setQuizStarted(true);
+    setTimeout(() => {
+      setQuizStarted(true);
+    }, 3000);
     setCurrentQuestion(0);
     setSelectedAnswers({});
   };
