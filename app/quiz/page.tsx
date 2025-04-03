@@ -240,7 +240,7 @@ export default function QuizPage() {
                 disabled={!selectedTopic}
                 className="w-full"
               >
-                {loading ? "Loading your quiz..." : "Start Quiz"}
+                {loading ? "Loading..." : "Start Quiz"}
               </Button>
             </CardFooter>
           </Card>
