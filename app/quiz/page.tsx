@@ -1,23 +1,33 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { ArrowLeft, Loader2 } from "lucide-react"
-import Link from "next/link"
-import { QuizTopicSelector } from "@/components/quiz-topic-selector"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { QuizTopicSelector } from "@/components/quiz-topic-selector";
+import axios from "axios";
 
 export default function QuizPage() {
-  const router = useRouter()
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
-  const [quizStarted, setQuizStarted] = useState(false)
-  const [currentQuestion, setCurrentQuestion] = useState(0)
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [username, setUsername] = useState("user123") // In a real app, this would come from auth
+  const router = useRouter();
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [quizStarted, setQuizStarted] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Record<number, string>
+  >({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [username, setUsername] = useState("user123"); // In a real app, this would come from auth
 
   // Mock quiz questions based on selected topic
   const quizQuestions = selectedTopic
@@ -53,56 +63,69 @@ export default function QuizPage() {
           correctAnswer: "Option A",
         },
       ]
-    : []
+    : [];
 
   const handleTopicSelect = (topic: string) => {
-    setSelectedTopic(topic)
-  }
+    setSelectedTopic(topic);
+  };
+
+  const getquiz = () => {
+    console.log("Fetching quiz content");
+    console.log(selectedTopic);
+    /*axios
+      .post("http://localhost/3001", {
+        prompt: `give quiz questions on the topic of ${selectedTopic}`,
+      })
+      .then((res) => {
+        console.log("quiz started");
+      });*/
+  };
 
   const startQuiz = () => {
-    setQuizStarted(true)
-    setCurrentQuestion(0)
-    setSelectedAnswers({})
-  }
+    getquiz();
+    setQuizStarted(true);
+    setCurrentQuestion(0);
+    setSelectedAnswers({});
+  };
 
   const handleAnswerSelect = (answer: string) => {
     setSelectedAnswers({
       ...selectedAnswers,
       [currentQuestion]: answer,
-    })
-  }
+    });
+  };
 
   const goToNextQuestion = () => {
     if (currentQuestion < quizQuestions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1)
+      setCurrentQuestion(currentQuestion + 1);
     }
-  }
+  };
 
   const goToPreviousQuestion = () => {
     if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1)
+      setCurrentQuestion(currentQuestion - 1);
     }
-  }
+  };
 
   const calculateScore = () => {
-    let score = 0
+    let score = 0;
     Object.keys(selectedAnswers).forEach((questionIndex) => {
-      const index = Number.parseInt(questionIndex)
+      const index = Number.parseInt(questionIndex);
       if (selectedAnswers[index] === quizQuestions[index].correctAnswer) {
-        score++
+        score++;
       }
-    })
-    return score
-  }
+    });
+    return score;
+  };
 
   const handleSubmitQuiz = async () => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       // Calculate score
-      const score = calculateScore()
-      const totalQuestions = quizQuestions.length
-      const percentage = (score / totalQuestions) * 100
+      const score = calculateScore();
+      const totalQuestions = quizQuestions.length;
+      const percentage = (score / totalQuestions) * 100;
 
       // 1. Submit quiz data to backend
       const quizData = {
@@ -111,7 +134,7 @@ export default function QuizPage() {
         score,
         totalQuestions,
         answers: selectedAnswers,
-      }
+      };
 
       // Using Axios in a real implementation
       // await axios.post('https://backend-intel-unnati.onrender.com', quizData);
@@ -121,7 +144,7 @@ export default function QuizPage() {
         score: percentage,
         topic: selectedTopic,
         timeSpent: 300, // Mock time spent in seconds
-      }
+      };
 
       // Using Axios in a real implementation
       // const predictionResponse = await axios.post(
@@ -131,7 +154,8 @@ export default function QuizPage() {
       // const difficulty = predictionResponse.data.difficulty;
 
       // Mock difficulty prediction
-      const difficulty = percentage > 80 ? "easy" : percentage > 50 ? "medium" : "hard"
+      const difficulty =
+        percentage > 80 ? "easy" : percentage > 50 ? "medium" : "hard";
 
       // 3. Submit performance data
       const performanceSubmitData = {
@@ -140,20 +164,22 @@ export default function QuizPage() {
         score: percentage,
         difficulty,
         date: new Date().toISOString(),
-      }
+      };
 
       // Using Axios in a real implementation
       // await axios.post('https://backend-intel-unnati.onrender.com/quiz/submit', performanceSubmitData);
 
       // Navigate to results page with data
-      router.push(`/results?score=${score}&total=${totalQuestions}&difficulty=${difficulty}&topic=${selectedTopic}`)
+      router.push(
+        `/results?score=${score}&total=${totalQuestions}&difficulty=${difficulty}&topic=${selectedTopic}`
+      );
     } catch (error) {
-      console.error("Error submitting quiz:", error)
+      console.error("Error submitting quiz:", error);
       // Handle error state here
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   if (!quizStarted) {
     return (
@@ -170,23 +196,32 @@ export default function QuizPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">Start a New Quiz</CardTitle>
-              <CardDescription>Select a topic to begin your quiz</CardDescription>
+              <CardDescription>
+                Select a topic to begin your quiz
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <QuizTopicSelector onSelectTopic={handleTopicSelect} selectedTopic={selectedTopic} />
+              <QuizTopicSelector
+                onSelectTopic={handleTopicSelect}
+                selectedTopic={selectedTopic}
+              />
             </CardContent>
             <CardFooter>
-              <Button onClick={startQuiz} disabled={!selectedTopic} className="w-full">
+              <Button
+                onClick={startQuiz}
+                disabled={!selectedTopic}
+                className="w-full"
+              >
                 Start Quiz
               </Button>
             </CardFooter>
           </Card>
         </div>
       </div>
-    )
+    );
   }
 
-  const currentQuestionData = quizQuestions[currentQuestion]
+  const currentQuestionData = quizQuestions[currentQuestion];
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -209,10 +244,16 @@ export default function QuizPage() {
             <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full mb-4">
               <div
                 className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${((currentQuestion + 1) / quizQuestions.length) * 100}%` }}
+                style={{
+                  width: `${
+                    ((currentQuestion + 1) / quizQuestions.length) * 100
+                  }%`,
+                }}
               ></div>
             </div>
-            <CardTitle className="text-xl">{currentQuestionData.question}</CardTitle>
+            <CardTitle className="text-xl">
+              {currentQuestionData.question}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <RadioGroup
@@ -226,7 +267,10 @@ export default function QuizPage() {
                   className="flex items-center space-x-2 rounded-md border p-3 transition-all hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   <RadioGroupItem value={option} id={`option-${index}`} />
-                  <Label htmlFor={`option-${index}`} className="flex-grow cursor-pointer">
+                  <Label
+                    htmlFor={`option-${index}`}
+                    className="flex-grow cursor-pointer"
+                  >
                     {option}
                   </Label>
                 </div>
@@ -234,16 +278,26 @@ export default function QuizPage() {
             </RadioGroup>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={goToPreviousQuestion} disabled={currentQuestion === 0}>
+            <Button
+              variant="outline"
+              onClick={goToPreviousQuestion}
+              disabled={currentQuestion === 0}
+            >
               Previous
             </Button>
 
             {currentQuestion < quizQuestions.length - 1 ? (
-              <Button onClick={goToNextQuestion} disabled={!selectedAnswers[currentQuestion]}>
+              <Button
+                onClick={goToNextQuestion}
+                disabled={!selectedAnswers[currentQuestion]}
+              >
                 Next
               </Button>
             ) : (
-              <Button onClick={handleSubmitQuiz} disabled={!selectedAnswers[currentQuestion] || isSubmitting}>
+              <Button
+                onClick={handleSubmitQuiz}
+                disabled={!selectedAnswers[currentQuestion] || isSubmitting}
+              >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -266,8 +320,8 @@ export default function QuizPage() {
                   index === currentQuestion
                     ? "bg-purple-600"
                     : selectedAnswers[index]
-                      ? "bg-slate-400"
-                      : "bg-slate-200 dark:bg-slate-700"
+                    ? "bg-slate-400"
+                    : "bg-slate-200 dark:bg-slate-700"
                 }`}
                 onClick={() => setCurrentQuestion(index)}
                 aria-label={`Go to question ${index + 1}`}
@@ -277,6 +331,5 @@ export default function QuizPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-

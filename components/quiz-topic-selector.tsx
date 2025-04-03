@@ -1,19 +1,23 @@
-"use client"
-import { Check } from "lucide-react"
+"use client";
+import { Check } from "lucide-react";
+import axios from "axios";
 
 type TopicSelectorProps = {
-  onSelectTopic: (topic: string) => void
-  selectedTopic: string | null
-}
+  onSelectTopic: (topic: string) => void;
+  selectedTopic: string | null;
+};
 
 type Topic = {
-  id: string
-  name: string
-  icon: string
-  description: string
-}
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+};
 
-export function QuizTopicSelector({ onSelectTopic, selectedTopic }: TopicSelectorProps) {
+export function QuizTopicSelector({
+  onSelectTopic,
+  selectedTopic,
+}: TopicSelectorProps) {
   const topics: Topic[] = [
     {
       id: "science",
@@ -51,7 +55,7 @@ export function QuizTopicSelector({ onSelectTopic, selectedTopic }: TopicSelecto
       icon: "💻",
       description: "Computers, Programming, AI and more",
     },
-  ]
+  ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -66,7 +70,9 @@ export function QuizTopicSelector({ onSelectTopic, selectedTopic }: TopicSelecto
                 : "border-slate-200 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600"
             }
           `}
-          onClick={() => onSelectTopic(topic.name)}
+          onClick={() => {
+            onSelectTopic(topic.name);
+          }}
         >
           {selectedTopic === topic.name && (
             <div className="absolute top-2 right-2 h-5 w-5 bg-purple-500 rounded-full flex items-center justify-center">
@@ -77,12 +83,13 @@ export function QuizTopicSelector({ onSelectTopic, selectedTopic }: TopicSelecto
             <div className="text-2xl">{topic.icon}</div>
             <div>
               <h3 className="font-medium">{topic.name}</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{topic.description}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {topic.description}
+              </p>
             </div>
           </div>
         </div>
       ))}
     </div>
-  )
+  );
 }
-
