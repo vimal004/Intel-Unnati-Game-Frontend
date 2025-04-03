@@ -28,42 +28,41 @@ export default function QuizPage() {
   >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [username, setUsername] = useState("user123"); // In a real app, this would come from auth
+  const [difficulty, setDifficulty] = useState("Easy");
 
   // Mock quiz questions based on selected topic
-  const quizQuestions = selectedTopic
-    ? [
-        {
-          id: 1,
-          question: `${selectedTopic} Question 1: Lorem ipsum dolor sit amet?`,
-          options: ["Option A", "Option B", "Option C", "Option D"],
-          correctAnswer: "Option A",
-        },
-        {
-          id: 2,
-          question: `${selectedTopic} Question 2: Consectetur adipiscing elit?`,
-          options: ["Option A", "Option B", "Option C", "Option D"],
-          correctAnswer: "Option C",
-        },
-        {
-          id: 3,
-          question: `${selectedTopic} Question 3: Sed do eiusmod tempor incididunt?`,
-          options: ["Option A", "Option B", "Option C", "Option D"],
-          correctAnswer: "Option B",
-        },
-        {
-          id: 4,
-          question: `${selectedTopic} Question 4: Ut labore et dolore magna aliqua?`,
-          options: ["Option A", "Option B", "Option C", "Option D"],
-          correctAnswer: "Option D",
-        },
-        {
-          id: 5,
-          question: `${selectedTopic} Question 5: Ut enim ad minim veniam?`,
-          options: ["Option A", "Option B", "Option C", "Option D"],
-          correctAnswer: "Option A",
-        },
-      ]
-    : [];
+  const [quizQuestions, setquizQuestions] = useState([
+    {
+      id: 1,
+      question: `${selectedTopic} Question 1: Lorem ipsum dolor sit amet?`,
+      options: ["Option A", "Option B", "Option C", "Option D"],
+      correctAnswer: "Option A",
+    },
+    {
+      id: 2,
+      question: `${selectedTopic} Question 2: Consectetur adipiscing elit?`,
+      options: ["Option A", "Option B", "Option C", "Option D"],
+      correctAnswer: "Option C",
+    },
+    {
+      id: 3,
+      question: `${selectedTopic} Question 3: Sed do eiusmod tempor incididunt?`,
+      options: ["Option A", "Option B", "Option C", "Option D"],
+      correctAnswer: "Option B",
+    },
+    {
+      id: 4,
+      question: `${selectedTopic} Question 4: Ut labore et dolore magna aliqua?`,
+      options: ["Option A", "Option B", "Option C", "Option D"],
+      correctAnswer: "Option D",
+    },
+    {
+      id: 5,
+      question: `${selectedTopic} Question 5: Ut enim ad minim veniam?`,
+      options: ["Option A", "Option B", "Option C", "Option D"],
+      correctAnswer: "Option A",
+    },
+  ]);
 
   const handleTopicSelect = (topic: string) => {
     setSelectedTopic(topic);
@@ -72,13 +71,17 @@ export default function QuizPage() {
   const getquiz = () => {
     console.log("Fetching quiz content");
     console.log(selectedTopic);
-    /*axios
-      .post("http://localhost/3001", {
-        prompt: `give quiz questions on the topic of ${selectedTopic}`,
+    axios
+      .post("http://localhost:3001/gemini", {
+        prompt: `give 5 quiz questions on the topic of ${selectedTopic} of level ${difficulty} and 4 options give in this format :
+      [{id,question,options,correctAnswer}]
+        `,
       })
       .then((res) => {
         console.log("quiz started");
-      });*/
+        console.log(res.data.response);
+        //setquizQuestions(res.data.response);
+      });
   };
 
   const startQuiz = () => {
