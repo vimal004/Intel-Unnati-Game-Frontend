@@ -73,7 +73,7 @@ export default function QuizPage() {
     console.log(selectedTopic);
 
     axios
-      .post("http://localhost:3001/gemini", {
+      .post("https://gemini-backend-uiuz.onrender.com/gemini", {
         prompt: `Generate 5 quiz questions on the topic of ${selectedTopic} at a ${difficulty} level. 
       Format the response as a valid JSON array:
       [{"id":1, "question":"...", "options":["A","B","C","D"], "correctAnswer":"..."}] no triple quotes json and stuff just provide the json`,
