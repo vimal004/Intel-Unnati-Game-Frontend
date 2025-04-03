@@ -98,6 +98,7 @@ export default function QuizPage() {
 
           // Set the quiz questions state
           setquizQuestions(parsedData);
+          setQuizStarted(true);
         } catch (error) {
           console.error("Error parsing response:", error);
         }
@@ -108,9 +109,6 @@ export default function QuizPage() {
 
   const startQuiz = () => {
     getquiz();
-    setTimeout(() => {
-      setQuizStarted(true);
-    }, 3000);
     setCurrentQuestion(0);
     setSelectedAnswers({});
   };
