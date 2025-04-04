@@ -335,8 +335,15 @@ export default function PerformancePage() {
                               <li className="flex items-start">
                                 <span className="mr-2">•</span>
                                 <span>
-                                  Your improvement of {data.improvement}% shows
-                                  your dedication is paying off!
+                                  Your improvement of {data.improvement}% shows{" "}
+                                  {data.improvement > 0
+                                    ? "great"
+                                    : "decent"}{" "}
+                                  progress. Keep up the good work,{" "}
+                                  {data.improvement > 0
+                                    ? "and continue to challenge yourself!"
+                                    : "and remember that consistency is key to become better!"}
+                                  <br />
                                 </span>
                               </li>
                             </ul>
