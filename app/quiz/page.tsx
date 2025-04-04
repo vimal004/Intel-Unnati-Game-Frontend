@@ -1,5 +1,6 @@
 "use client";
-
+import { GoogleGenAI } from "@google/genai";
+const GEMINI_API_KEY = "AIzaSyBqEPj8Y1bY5CPwwcw24KqnbPZL9D88K-Y";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,20 @@ export default function QuizPage() {
   const [username, setUsername] = useState("user123"); // In a real app, this would come from auth
   const [difficulty, setDifficulty] = useState("Easy");
   const [loading, setLoading] = useState(false);
+
+  const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+
+  async function main() {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash-001",
+      contents: `Generate 5 quiz questions on the topic of ${selectedTopic} at a ${difficulty} level unique and not overused/common. 
+      Format the response as a valid JSON array:
+      [{"id":1, "question":"...", "options":["Tiger","Lion","Leapord","Horse"], "correctAnswer":"Horse"}] no triple quotes json and stuff just provide the json`,
+    });
+    console.log(response.text);
+  }
+
+  main();
 
   // Mock quiz questions based on selected topic
   const [quizQuestions, setquizQuestions] = useState([
@@ -101,7 +116,7 @@ export default function QuizPage() {
           // Set the quiz questions state
           setquizQuestions(parsedData);
           setQuizStarted(true);
-          setLoading(false); // Set loading to false after fetching quiz content  
+          setLoading(false); // Set loading to false after fetching quiz content
         } catch (error) {
           console.error("Error parsing response:", error);
         }
