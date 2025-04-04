@@ -60,7 +60,7 @@ Intel-Unnati-Game-Frontend/
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-username/Intel-Unnati-Game-Frontend.git
+git clone https://github.com/vimal004/Intel-Unnati-Game-Frontend.git
 cd Intel-Unnati-Game-Frontend
 
 # Install dependencies
