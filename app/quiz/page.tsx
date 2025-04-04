@@ -14,10 +14,15 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Lightbulb } from "lucide-react"; // Import Lightbulb icon
 import Link from "next/link";
 import { QuizTopicSelector } from "@/components/quiz-topic-selector";
 import axios from "axios";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"; // Import Popover components
 
 export default function QuizPage() {
   const router = useRouter();
@@ -53,30 +58,35 @@ export default function QuizPage() {
       question: `${selectedTopic} Question 1: Lorem ipsum dolor sit amet?`,
       options: ["Option A", "Option B", "Option C", "Option D"],
       correctAnswer: "Option A",
+      hints: "This is a mock hint for question 1.", // Add mock hint
     },
     {
       id: 2,
       question: `${selectedTopic} Question 2: Consectetur adipiscing elit?`,
       options: ["Option A", "Option B", "Option C", "Option D"],
       correctAnswer: "Option C",
+      hints: "This is a mock hint for question 2.", // Add mock hint
     },
     {
       id: 3,
       question: `${selectedTopic} Question 3: Sed do eiusmod tempor incididunt?`,
       options: ["Option A", "Option B", "Option C", "Option D"],
       correctAnswer: "Option B",
+      hints: "This is a mock hint for question 3.", // Add mock hint
     },
     {
       id: 4,
       question: `${selectedTopic} Question 4: Ut labore et dolore magna aliqua?`,
       options: ["Option A", "Option B", "Option C", "Option D"],
       correctAnswer: "Option D",
+      hints: "This is a mock hint for question 4.", // Add mock hint
     },
     {
       id: 5,
       question: `${selectedTopic} Question 5: Ut enim ad minim veniam?`,
       options: ["Option A", "Option B", "Option C", "Option D"],
       correctAnswer: "Option A",
+      hints: "This is a mock hint for question 5.", // Add mock hint
     },
   ]);
 
@@ -93,7 +103,7 @@ export default function QuizPage() {
       .post("https://gemini-backend-uiuz.onrender.com/gemini", {
         prompt: `Generate 5 quiz questions on the topic of ${selectedTopic} at a ${difficulty} level unique and not overused/common. 
       Format the response as a valid JSON array:
-      [{"id":1, "question":"...", "options":["Tiger","Lion","Leapord","Horse"], "correctAnswer":"Horse"}] no triple quotes json and stuff just provide the json`,
+      [{"id":1, "question":"...", "options":["Tiger","Lion","Leapord","Horse"], "correctAnswer":"Horse", "hints":"..."}] no triple quotes json and stuff just provide the json`, // Add "hints" to the prompt
       })
       .then((res) => {
         console.log("quiz started");
@@ -294,9 +304,19 @@ export default function QuizPage() {
                 }}
               ></div>
             </div>
-            <CardTitle className="text-xl">
-              {currentQuestionData.question}
-            </CardTitle>
+            <div className="flex justify-between items-start">
+              <CardTitle className="text-xl">
+                {currentQuestionData.question}
+              </CardTitle>
+              <Popover>
+                <PopoverTrigger>
+                  <Lightbulb className="h-5 w-5 cursor-pointer" />
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  {currentQuestionData.hints || "No hint available."}
+                </PopoverContent>
+              </Popover>
+            </div>
           </CardHeader>
           <CardContent>
             <RadioGroup
