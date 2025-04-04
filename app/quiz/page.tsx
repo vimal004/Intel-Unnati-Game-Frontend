@@ -26,6 +26,7 @@ import {
 
 // --- Timer Configuration ---
 const QUIZ_DURATION_SECONDS = 300; // 5 minutes
+const LOCAL_STORAGE_KEY = "quizHistory";
 
 // --- Helper function to format time ---
 const formatTime = (seconds: number): string => {
@@ -237,86 +238,85 @@ export default function QuizPage() {
   };
 
   // Modified handleSubmitQuiz to accept an optional flag and calculate timeSpent
-  const handleSubmitQuiz = async (timedOut = false) => {
-    // Prevent double submissions
-    if (isSubmitting) return;
+   const handleSubmitQuiz = (timedOut = false) => {
+     // Check submitting state at the very beginning
+     if (isSubmitting) {
+       console.log("Submission already in progress, exiting.");
+       return;
+     }
 
-    setIsSubmitting(true);
+     console.log("Setting isSubmitting to true");
+     setIsSubmitting(true); // Set submitting state
 
-    // --- Stop the timer ---
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-      timerIntervalRef.current = null;
-      console.log("Timer cleared on submit");
-    }
+     // Stop the timer immediately
+     if (timerIntervalRef.current) {
+       clearInterval(timerIntervalRef.current);
+       timerIntervalRef.current = null;
+       console.log("Timer cleared on submit");
+     }
 
-    // --- Calculate Time Spent ---
-    const timeSpent = QUIZ_DURATION_SECONDS - timeLeft;
-    console.log(
-      `Quiz submitted. Timed out: ${timedOut}, Time spent: ${timeSpent}s`
-    );
+     const timeSpent = QUIZ_DURATION_SECONDS - timeLeft;
+     const scoreCount = calculateScore();
+     const totalQuestions = quizQuestions.length;
+     const percentage =
+       totalQuestions > 0 ? Math.round((scoreCount / totalQuestions) * 100) : 0; // Calculate percentage score
 
-    try {
-      // Calculate score
-      const score = calculateScore();
-      const totalQuestions = quizQuestions.length;
-      const percentage =
-        totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
+     console.log(
+       `Quiz submitted. Timed out: ${timedOut}, Score: ${scoreCount}/${totalQuestions} (${percentage}%), Time spent: ${timeSpent}s`
+     );
 
-      // 1. Prepare quiz data for backend (if needed)
-      const quizData = {
-        username,
-        topic: selectedTopic,
-        score,
-        totalQuestions,
-        answers: selectedAnswers,
-        timeSpent, // Include time spent
-        submittedAt: new Date().toISOString(),
-      };
-      console.log("Submitting Quiz Data:", quizData);
-      // Example: await axios.post('YOUR_BACKEND_ENDPOINT/submit-quiz', quizData);
+     // --- Save to Local Storage ---
+     try {
+       const newResult: QuizResult = {
+         id: Date.now().toString(), // Simple unique ID
+         topic: selectedTopic,
+         score: percentage, // Store percentage
+         difficulty: difficulty, // Use the state value directly
+         totalQuestions: totalQuestions,
+         timeSpent: timeSpent,
+         date: new Date().toISOString(), // Standard ISO format
+       };
 
-      // 2. Prepare performance data for prediction (if needed)
-      const performanceData = {
-        score: percentage,
-        topic: selectedTopic,
-        timeSpent: timeSpent, // Use actual time spent
-      };
-      console.log("Performance Data for Prediction:", performanceData);
-      // Example: const predictionResponse = await axios.post('YOUR_PREDICTION_ENDPOINT/predict', performanceData);
-      // const predictedDifficulty = predictionResponse.data.difficulty;
+       // Get existing history or initialize empty array
+       const existingHistoryString = localStorage.getItem(LOCAL_STORAGE_KEY);
+       let history: QuizResult[] = [];
+       if (existingHistoryString) {
+         try {
+           history = JSON.parse(existingHistoryString);
+           if (!Array.isArray(history)) {
+             // Basic validation
+             console.warn(
+               "Invalid history data found in localStorage, resetting."
+             );
+             history = [];
+           }
+         } catch (parseError) {
+           console.error(
+             "Error parsing history from localStorage:",
+             parseError
+           );
+           history = []; // Reset history if parsing fails
+         }
+       }
 
-      // Mock difficulty prediction (replace with actual prediction if available)
-      const predictedDifficulty =
-        percentage > 80 ? "Easy" : percentage > 50 ? "Medium" : "Hard"; // Match case used elsewhere
-
-      // 3. Prepare performance submission data (if needed)
-      const performanceSubmitData = {
-        username,
-        topic: selectedTopic,
-        score: percentage,
-        difficulty: predictedDifficulty, // Use predicted difficulty
-        timeSpent, // Include time spent
-        date: new Date().toISOString(),
-      };
-      console.log("Submitting Performance Data:", performanceSubmitData);
-      // Example: await axios.post('YOUR_BACKEND_ENDPOINT/submit-performance', performanceSubmitData);
-
-      // Navigate to results page with data including time spent
-      router.push(
-        `/results?score=${score}&total=${totalQuestions}&difficulty=${predictedDifficulty}&topic=${selectedTopic}&timeSpent=${timeSpent}` // Add timeSpent
-      );
-    } catch (error) {
-      console.error("Error submitting quiz:", error);
-      alert(
-        `An error occurred while submitting the quiz. ${error.message || ""}`
-      );
-      // Handle error state here (e.g., show a message to the user)
-      setIsSubmitting(false); // Reset submitting state on error
-    }
-    // No finally block needed for setIsSubmitting(false) because navigation occurs on success
-    // If staying on the page after submission was intended, a finally block would be needed.
-  };
+       // Add the new result and save back
+       history.push(newResult);
+       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(history));
+       console.log("Quiz result saved to localStorage:", newResult);
+     } catch (storageError) {
+       console.error("Error saving quiz result to localStorage:", storageError);
+       // Optionally inform the user that history couldn't be saved
+       alert("Could not save quiz result to history due to a storage error.");
+     } finally {
+       // --- Navigation ---
+       // Navigate to results page, passing necessary info
+       router.push(
+         `/results?score=${scoreCount}&total=${totalQuestions}&difficulty=${difficulty}&topic=${selectedTopic}&timeSpent=${timeSpent}`
+       );
+       // Note: We don't set isSubmitting back to false here because we are navigating away.
+       // If you were *not* navigating, you would reset it here.
+     }
+   };
 
   // --- UI Rendering ---
 
