@@ -346,7 +346,7 @@ export default function QuizPage() {
                 selectedTopic={selectedTopic}
               />
               <div>
-                <Label htmlFor="difficulty">Difficulty</Label>
+                <Label htmlFor="difficulty">Choose your difficulty level</Label>
                 <RadioGroup
                   id="difficulty"
                   value={difficulty}
