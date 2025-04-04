@@ -1,86 +1,148 @@
-"use client"
+// src/app/performance/page.tsx
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, BarChart3, Brain, TrendingUp } from "lucide-react"
-import Link from "next/link"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ArrowLeft, BarChart3, Brain, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { QuizResult } from "@/types/quiz"; // Import the shared type
 
 type PerformanceData = {
-  topic: string
-  scores: number[]
-  averageScore: number
-  improvement: number
-  mostCommonDifficulty: string
-}
+  topic: string;
+  scores: number[];
+  averageScore: number;
+  improvement: number;
+  mostCommonDifficulty: string;
+};
+
+// Key must match the one used in QuizPage
+const LOCAL_STORAGE_KEY = "quizHistory";
 
 export default function PerformancePage() {
-  const [performanceData, setPerformanceData] = useState<Record<string, PerformanceData>>({})
-  const [isLoading, setIsLoading] = useState(true)
-  const username = "user123" // In a real app, this would come from auth
+  const [performanceData, setPerformanceData] = useState<
+    Record<string, PerformanceData>
+  >({});
+  const [isLoading, setIsLoading] = useState(true);
+  // const username = "user123"; // In a real app, this would come from auth
+  const [quizHistory, setQuizHistory] = useState<QuizResult[]>([]);
 
   useEffect(() => {
-    // Simulate API call to fetch performance data
-    const fetchPerformanceData = async () => {
-      setIsLoading(true)
-      try {
-        // In a real implementation, this would be:
-        // const response = await axios.get(`https://backend-intel-unnati.onrender.com/performance/${username}`);
-        // const data = response.data;
+    setIsLoading(true);
+    try {
+      const storedHistory = localStorage.getItem(LOCAL_STORAGE_KEY);
+      let loadedHistory: QuizResult[] = [];
 
-        // Mock data for demonstration
-        const mockData: Record<string, PerformanceData> = {
-          Science: {
-            topic: "Science",
-            scores: [65, 70, 75, 85],
-            averageScore: 73.75,
-            improvement: 20,
-            mostCommonDifficulty: "medium",
-          },
-          Math: {
-            topic: "Math",
-            scores: [60, 75, 90],
-            averageScore: 75,
-            improvement: 30,
-            mostCommonDifficulty: "easy",
-          },
-          History: {
-            topic: "History",
-            scores: [40, 45, 55],
-            averageScore: 46.67,
-            improvement: 15,
-            mostCommonDifficulty: "hard",
-          },
+      if (storedHistory) {
+        try {
+          loadedHistory = JSON.parse(storedHistory);
+          if (!Array.isArray(loadedHistory)) {
+            console.warn(
+              "Invalid history data found in localStorage, resetting."
+            );
+            loadedHistory = [];
+          }
+        } catch (parseError) {
+          console.error("Error parsing history from localStorage:", parseError);
+          loadedHistory = [];
+        }
+      }
+      setQuizHistory(loadedHistory);
+    } catch (error) {
+      console.error("Error accessing localStorage:", error);
+      setQuizHistory([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && quizHistory.length > 0) {
+      const calculatedPerformance: Record<string, PerformanceData> = {};
+
+      // Group scores by topic
+      const scoresByTopic: Record<string, number[]> = {};
+      const difficultiesByTopic: Record<
+        string,
+        ("Easy" | "Medium" | "Hard")[]
+      > = {};
+
+      quizHistory.forEach((result) => {
+        if (result.topic) {
+          if (!scoresByTopic[result.topic]) {
+            scoresByTopic[result.topic] = [];
+          }
+          scoresByTopic[result.topic].push(result.score);
+
+          if (!difficultiesByTopic[result.topic]) {
+            difficultiesByTopic[result.topic] = [];
+          }
+          difficultiesByTopic[result.topic].push(result.difficulty);
+        }
+      });
+
+      for (const topic in scoresByTopic) {
+        const scores = scoresByTopic[topic];
+        const averageScore =
+          scores.reduce((sum, score) => sum + score, 0) / scores.length;
+        const improvement =
+          scores.length > 1 ? scores[scores.length - 1] - scores[0] : 0;
+
+        const difficulties = difficultiesByTopic[topic];
+        const difficultyCounts: Record<string, number> = {
+          Easy: 0,
+          Medium: 0,
+          Hard: 0,
+        };
+        difficulties.forEach((diff) => {
+          difficultyCounts[diff]++;
+        });
+
+        let mostCommonDifficulty: "easy" | "medium" | "hard" = "medium";
+        let maxCount = 0;
+        for (const diff in difficultyCounts) {
+          if (difficultyCounts[diff] > maxCount) {
+            maxCount = difficultyCounts[diff];
+            mostCommonDifficulty = diff.toLowerCase() as
+              | "easy"
+              | "medium"
+              | "hard";
+          }
         }
 
-        // Simulate network delay
-        setTimeout(() => {
-          setPerformanceData(mockData)
-          setIsLoading(false)
-        }, 1000)
-      } catch (error) {
-        console.error("Error fetching performance data:", error)
-        setIsLoading(false)
+        calculatedPerformance[topic] = {
+          topic,
+          scores,
+          averageScore,
+          improvement,
+          mostCommonDifficulty,
+        };
       }
-    }
 
-    fetchPerformanceData()
-  }, [username])
+      setPerformanceData(calculatedPerformance);
+    }
+  }, [isLoading, quizHistory]);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "easy":
-        return "text-green-500"
+        return "text-green-500";
       case "medium":
-        return "text-yellow-500"
+        return "text-yellow-500";
       case "hard":
-        return "text-red-500"
+        return "text-red-500";
       default:
-        return "text-blue-500"
+        return "text-blue-500";
     }
-  }
+  };
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -96,7 +158,9 @@ export default function PerformancePage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Performance Insights</CardTitle>
-            <CardDescription>AI-powered analysis of your quiz performance</CardDescription>
+            <CardDescription>
+              AI-powered analysis of your quiz performance
+            </CardDescription>
           </CardHeader>
 
           <CardContent>
@@ -124,8 +188,13 @@ export default function PerformancePage() {
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <div className="text-3xl font-bold">{data.averageScore.toFixed(1)}%</div>
-                          <Progress value={data.averageScore} className="h-2 mt-2" />
+                          <div className="text-3xl font-bold">
+                            {data.averageScore.toFixed(1)}%
+                          </div>
+                          <Progress
+                            value={data.averageScore}
+                            className="h-2 mt-2"
+                          />
                         </CardContent>
                       </Card>
 
@@ -136,7 +205,9 @@ export default function PerformancePage() {
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="flex items-center">
-                          <div className="text-3xl font-bold">{data.improvement}%</div>
+                          <div className="text-3xl font-bold">
+                            {data.improvement}%
+                          </div>
                           <TrendingUp className="ml-2 h-5 w-5 text-green-500" />
                         </CardContent>
                       </Card>
@@ -149,7 +220,11 @@ export default function PerformancePage() {
                         </CardHeader>
                         <CardContent>
                           <div className="text-3xl font-bold">
-                            <span className={getDifficultyColor(data.mostCommonDifficulty)}>
+                            <span
+                              className={getDifficultyColor(
+                                data.mostCommonDifficulty
+                              )}
+                            >
                               {data.mostCommonDifficulty}
                             </span>
                           </div>
@@ -159,18 +234,28 @@ export default function PerformancePage() {
 
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Score Progression</CardTitle>
+                        <CardTitle className="text-lg">
+                          Score Progression
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="h-64 flex items-end justify-between gap-2">
                           {data.scores.map((score, index) => (
-                            <div key={index} className="relative flex flex-col items-center flex-1">
+                            <div
+                              key={index}
+                              className="relative flex flex-col items-center flex-1"
+                            >
                               <div
                                 className="w-full bg-purple-500 rounded-t-sm transition-all duration-500"
                                 style={{ height: `${score}%` }}
+                                title={`Quiz ${index + 1}: ${score}%`} // Added tooltip here
                               ></div>
-                              <span className="text-xs mt-2">Quiz {index + 1}</span>
-                              <span className="text-xs font-medium">{score}%</span>
+                              <span className="text-xs mt-2">
+                                Quiz {index + 1}
+                              </span>
+                              <span className="text-xs font-medium">
+                                {score}%
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -179,14 +264,17 @@ export default function PerformancePage() {
 
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">AI Recommendations</CardTitle>
+                        <CardTitle className="text-lg">
+                          AI Recommendations
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="flex items-start space-x-3">
                           <Brain className="w-5 h-5 text-purple-500 mt-0.5" />
                           <div>
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                              Based on your performance in {topic}, here are some personalized recommendations:
+                              Based on your performance in {topic}, here are
+                              some personalized recommendations:
                             </p>
                             <ul className="space-y-2 text-sm">
                               {data.averageScore < 60 ? (
@@ -194,14 +282,16 @@ export default function PerformancePage() {
                                   <li className="flex items-start">
                                     <span className="mr-2">•</span>
                                     <span>
-                                      Focus on building foundational knowledge in {topic} before advancing to more
+                                      Focus on building foundational knowledge
+                                      in {topic} before advancing to more
                                       complex topics.
                                     </span>
                                   </li>
                                   <li className="flex items-start">
                                     <span className="mr-2">•</span>
                                     <span>
-                                      Consider reviewing basic concepts and taking more beginner-level quizzes.
+                                      Consider reviewing basic concepts and
+                                      taking more beginner-level quizzes.
                                     </span>
                                   </li>
                                 </>
@@ -210,15 +300,16 @@ export default function PerformancePage() {
                                   <li className="flex items-start">
                                     <span className="mr-2">•</span>
                                     <span>
-                                      You're making good progress! Try to focus on specific areas where you scored
-                                      lower.
+                                      You're making good progress! Try to focus
+                                      on specific areas where you scored lower.
                                     </span>
                                   </li>
                                   <li className="flex items-start">
                                     <span className="mr-2">•</span>
                                     <span>
-                                      Consider taking more quizzes at the {data.mostCommonDifficulty} difficulty level
-                                      to solidify your knowledge.
+                                      Consider taking more quizzes at the{" "}
+                                      {data.mostCommonDifficulty} difficulty
+                                      level to solidify your knowledge.
                                     </span>
                                   </li>
                                 </>
@@ -226,12 +317,16 @@ export default function PerformancePage() {
                                 <>
                                   <li className="flex items-start">
                                     <span className="mr-2">•</span>
-                                    <span>Excellent work! You're performing very well in {topic}.</span>
+                                    <span>
+                                      Excellent work! You're performing very
+                                      well in {topic}.
+                                    </span>
                                   </li>
                                   <li className="flex items-start">
                                     <span className="mr-2">•</span>
                                     <span>
-                                      Consider challenging yourself with more advanced topics or higher difficulty
+                                      Consider challenging yourself with more
+                                      advanced topics or higher difficulty
                                       quizzes.
                                     </span>
                                   </li>
@@ -240,7 +335,8 @@ export default function PerformancePage() {
                               <li className="flex items-start">
                                 <span className="mr-2">•</span>
                                 <span>
-                                  Your improvement of {data.improvement}% shows your dedication is paying off!
+                                  Your improvement of {data.improvement}% shows
+                                  your dedication is paying off!
                                 </span>
                               </li>
                             </ul>
@@ -254,7 +350,9 @@ export default function PerformancePage() {
             ) : (
               <div className="text-center py-12">
                 <BarChart3 className="h-12 w-12 mx-auto text-slate-300 dark:text-slate-600 mb-4" />
-                <h3 className="text-lg font-medium mb-2">No performance data yet</h3>
+                <h3 className="text-lg font-medium mb-2">
+                  No performance data yet
+                </h3>
                 <p className="text-slate-500 dark:text-slate-400 mb-6">
                   Take some quizzes to see your performance insights
                 </p>
@@ -267,6 +365,5 @@ export default function PerformancePage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
-
