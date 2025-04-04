@@ -1,4 +1,5 @@
-# 🎮 Intel Unnati - AI Adaptive Quiz Game
+# 🎮 Intel Unnati - AI Adaptive Quiz Game 
+(https://intel-unnati-game-frontend.vercel.app/)
 
 This project is the frontend for an **adaptive educational quiz game**, developed under the **Intel Unnati program**. It features dynamic quiz generation, performance tracking, and personalized user interactions. Built with **Next.js**, **TypeScript**, and **TailwindCSS**, it provides a responsive and modular UI designed to integrate with an AI-powered backend that curates quizzes.
 
