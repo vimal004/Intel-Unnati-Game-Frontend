@@ -97,4 +97,4 @@ The models and scripts in this directory work together to create a **personalize
 
 For further questions or contributions, please refer to the main repository for detailed guidelines.
 
-Happy learning! 🚀
+Happy Learning! 🚀
