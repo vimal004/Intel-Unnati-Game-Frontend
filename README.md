@@ -12,7 +12,7 @@ Welcome to the **AI-Powered Adaptive Quiz Game**, an innovative educational plat
 - [🌍 How it Works](#-how-it-works)
 - [🗂️ Folder Structure](#️-folder-structure)
 - [🛠️ Tech Stack](#️-tech-stack)
-- [📦 Installation & Setup](#-installation-setup)
+- [📦 Installation & Setup](#-installation-and-setup)
 - [🔌 API Integration](#-api-integration)
 - [📸 Screenshots](#-screenshots)
 - [💡 How to Run the Streamlit App (`app.py`)](#-how-to-run-the-streamlit-app-apppy)
@@ -95,7 +95,7 @@ The project is built using modern, scalable, and performant technologies. Here's
 
 ---
 
-## 📦 **Installation & Setup**
+## 📦 **Installation and Setup**
 
 To set up and run the project locally, follow these steps:
 
