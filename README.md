@@ -5,6 +5,21 @@ Welcome to the **AI-Powered Adaptive Quiz Game**, an innovative educational plat
 
 ---
 
+## 📚 **Table of Contents**
+
+- [🎮 Intel Unnati - AI Adaptive Quiz Game](#-intel-unnati---ai-adaptive-quiz-game)
+- [🚀 Key Features](#-key-features)
+- [🌍 How it Works](#-how-it-works)
+- [🗂️ Folder Structure](#️-folder-structure)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [📦 Installation & Setup](#-installation-setup)
+- [🔌 API Integration](#-api-integration)
+- [📸 Screenshots](#-screenshots)
+- [💡 How to Run the Streamlit App (`app.py`)](#-how-to-run-the-streamlit-app-apppy)
+- [📜 Conclusion](#conclusion)
+
+---
+
 ## 🚀 **Key Features**
 - 🌐 **Dynamic Quiz Generation**: Automatically adapts quiz content based on student performance.
 - 🎯 **Personalized Learning Paths**: Adjust quiz difficulty dynamically using AI to offer the right challenge.
