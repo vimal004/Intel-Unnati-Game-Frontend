@@ -125,19 +125,25 @@ Here are some key screenshots of the app’s interface:
 
 ### 📋 **Landing Page**
 
-![Landing Page](https://via.placeholder.com/800x400)
+![Landing Page](assets/Home_page.png)
 
 This page allows the user to sign up, log in, and view available quiz topics.
 
 ### 🧩 **Quiz Game View**
+![Start Quiz](assets/Start_quiz.png)
 
-![Quiz View](https://via.placeholder.com/800x400)
+![Quiz View](assets/quiz_ques.png)
 
-The quiz game interface where users answer dynamic questions based on their selected topics.
+![Hint](assets/hint.png)
+
+![Quiz Results](assets/quiz_result.png)
+
+The quiz game interface where users answer dynamic questions based on their selected topics, provides hints for respective questions.
 
 ### 📊 **Performance Dashboard**
+![Performance Dashboard](assets/performance_insights.png)
 
-![Performance Dashboard](https://via.placeholder.com/800x400)
+![Quiz History](assets/quiz_history.png)
 
 Displays detailed progress and performance statistics, allowing users to track their learning journey.
 
