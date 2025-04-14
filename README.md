@@ -191,3 +191,4 @@ For the full interactive experience, the **Streamlit** app can be run to interac
 ## **Conclusion**
 
 The **AI-Powered Adaptive Quiz Game** is a powerful platform designed to enhance learning experiences through personalized, dynamic quizzes. By leveraging **Generative AI** and **Machine Learning**, this app adapts quiz content based on the learner’s progress, ensuring that students are always challenged appropriately. Through real-time feedback and personalized learning paths, the system helps students stay engaged and motivated throughout their learning journey.
+
